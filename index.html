@@ -84,15 +84,16 @@ var onPlayerStateChange = function(event) {
 
 var init = function() {
     VIDEOS = populate();
-    var lc = localStorage.lc || 'en';
-    CURRENT = shuffle(VIDEOS[localStorage.age || 5][lc])
+    var s_lc = localStorage.lc || 'en';
+    var s_age = localStorage.age || 5;
+    CURRENT = shuffle(VIDEOS[s_age][s_lc])
     var s = [];
     for (var age in VIDEOS) {
         s.push('[');
         s.push(age);
         for (var lc in VIDEOS[age]) {
             var count = VIDEOS[age][lc].length;
-            if (localStorage.lc == lc && localStorage.age == age)
+            if (s_lc == lc && s_age == age)
                 s.push(lc);
             else
                 s.push('<a href="javascript: localStorage.age=' + age + '; localStorage.lc=\'' + lc + '\'; init(); next(); ">' + lc + "#" +count  +'</a>');
