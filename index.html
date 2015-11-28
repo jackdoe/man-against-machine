@@ -4,9 +4,10 @@
     <a href="javascript: next()">next random</a> current: <b id='current'></b>, age: <span id='ages'><b id='selected_age'></b></span><br>
     <div id="player"></div>
     <script>
-var VIDEOS = undefined;
+var VIDEOS  = undefined;
 var CURRENT = undefined;
-var ITER = 0;
+var PLAYER  = undefined;
+var ITER    = 0;
 
 var shuffle = function(array) {
     // http://stackoverflow.com/a/6274398/1075083
@@ -50,9 +51,9 @@ var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-var player;
+
 var onYouTubeIframeAPIReady = function() {
-    player = new YT.Player('player', {
+    PLAYER = new YT.Player('player', {
         height: window.innerHeight - 40,
         width: window.innerWidth - 20,
         videoId: pick(),
@@ -68,7 +69,7 @@ var onPlayerReady = function(event) {
 }
 
 var next = function() {
-    player.loadVideoById(pick());
+    PLAYER.loadVideoById(pick());
 }
 
 var onPlayerStateChange = function(event) {
