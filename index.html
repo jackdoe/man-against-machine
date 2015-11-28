@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <body>
-    <a href="javascript: next()">next random</a> current: <b id='current'></b>, age: <span id='ages'><b id='selected_age'></b></span><br>
+    <a href="javascript: next()">next random</a> current: <b id='current'></b>, age: <span id='ages'></span><br>
     <div id="player"></div>
     <script>
 var VIDEOS  = undefined;
@@ -22,21 +22,26 @@ var shuffle = function(array) {
     return array;
 }
 
-var add = function(into, from, to, id, title) {
+var add = function(into, from, to, language, id, title) {
     for (var age = from; age <= to; age++) {
         if (!into[age])
-            into[age] = [];
-        into[age].push({id: id, title: title});
+            into[age] = {};
+        if (!into[age][language])
+            into[age][language] = [];
+        into[age][language].push({id: id, title: title});
     }
 }
 
 var populate = function() {
     var v = {};
 
-    add(v, 0, 5, 'L0MK7qz13bU', 'frozen');
-    add(v, 0, 5, 'hSQxjB1Jdkw', 'finger song');
-    add(v, 0, 5, 'u9zAJz2wyG8', 'peppa');
-    add(v, 5, 5, 'XU1y7pX7dNo', 'kids-yoga');
+    add(v, 0, 5, 'en', 'L0MK7qz13bU', 'frozen');
+    add(v, 0, 5, 'en', 'hSQxjB1Jdkw', 'finger song');
+    add(v, 0, 5, 'en', 'u9zAJz2wyG8', 'peppa');
+    add(v, 5, 5, 'en', 'XU1y7pX7dNo', 'kids-yoga');
+
+    add(v, 1, 5, 'ru', 'FCkUQxlJNWc', 'funny');
+    add(v, 1, 5, 'ru', '5GbM1mKgpFY', 'kolbok');
 
     return v;
 }
@@ -79,17 +84,22 @@ var onPlayerStateChange = function(event) {
 
 var init = function() {
     VIDEOS = populate();
-    CURRENT = shuffle(VIDEOS[localStorage.age || 5])
-
-    var s = '';
-    for (var k in VIDEOS) {
-        var inner = k + '[' + VIDEOS[k].length + ']';
-        if (localStorage.age == k)
-            s += inner + '&nbsp;';
-        else
-            s += '<a href="javascript: localStorage.age=' + k + '; init(); next(); ">' + inner  +'</a>&nbsp;';
+    var lc = localStorage.lc || 'en';
+    CURRENT = shuffle(VIDEOS[localStorage.age || 5][lc])
+    var s = [];
+    for (var age in VIDEOS) {
+        s.push('[');
+        s.push(age);
+        for (var lc in VIDEOS[age]) {
+            var count = VIDEOS[age][lc].length;
+            if (localStorage.lc == lc && localStorage.age == age)
+                s.push(lc);
+            else
+                s.push('<a href="javascript: localStorage.age=' + age + '; localStorage.lc=\'' + lc + '\'; init(); next(); ">' + lc + "#" +count  +'</a>');
+        }
+        s.push(']');
     }
-    document.getElementById('ages').innerHTML = s;
+    document.getElementById('ages').innerHTML = s.join('&nbsp');
 }
 
 init();
