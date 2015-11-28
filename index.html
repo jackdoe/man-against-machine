@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <a href="javascript: next()">next random</a> current: <b id='current'></b><br>
+    <div id="player"></div>
+    <script>
+var shuffle = function(array) {
+    // http://stackoverflow.com/a/6274398/1075083
+    var counter = array.length, temp, index;
+    while (counter > 0) {
+        index = Math.floor(Math.random() * counter);
+        counter--;
+        temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+    return array;
+}
+
+var add = function(into, age, id, title) {
+    if (!into[age])
+        into[age] = [];
+    into[age].push({id: id, title: title});
+}
+
+var populate = function() {
+    var v = {};
+
+    add(v, 5, 'L0MK7qz13bU', 'frozen');
+    add(v, 5, 'hSQxjB1Jdkw', 'finger song');
+    add(v, 5, 'u9zAJz2wyG8', 'peppa');
+
+    return v;
+}
+
+var VIDEOS = shuffle(populate()[5]); // only age 5
+
+var idx = 0;
+var pick = function() {
+    var obj = VIDEOS[idx++ % VIDEOS.length]
+    document.getElementById('current').innerHTML = JSON.stringify(obj);
+    return obj.id;
+}
+
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+var player;
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+        height: window.innerHeight - 40,
+        width: window.innerWidth - 20,
+        videoId: pick(),
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+
+function onPlayerReady(event) {
+    event.target.playVideo();
+}
+
+function next() {
+    player.loadVideoById(pick());
+}
+
+function onPlayerStateChange(event) {
+    if (event.data == YT.PlayerState.ENDED)
+        next();
+}
+    </script>
+  </body>
+</html>
