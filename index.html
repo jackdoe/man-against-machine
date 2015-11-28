@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html>
   <body>
-    <a href="javascript: next()">next random</a> current: <b id='current'></b><br>
+    <a href="javascript: next()">next random</a> current: <b id='current'></b>, age: <span id='ages'><b id='selected_age'></b></span><br>
     <div id="player"></div>
     <script>
+var VIDEOS = undefined;
+var CURRENT = undefined;
+var ITER = 0;
+
 var shuffle = function(array) {
     // http://stackoverflow.com/a/6274398/1075083
     var counter = array.length, temp, index;
@@ -17,27 +21,27 @@ var shuffle = function(array) {
     return array;
 }
 
-var add = function(into, age, id, title) {
-    if (!into[age])
-        into[age] = [];
-    into[age].push({id: id, title: title});
+var add = function(into, from, to, id, title) {
+    for (var age = from; age <= to; age++) {
+        if (!into[age])
+            into[age] = [];
+        into[age].push({id: id, title: title});
+    }
 }
 
 var populate = function() {
     var v = {};
 
-    add(v, 5, 'L0MK7qz13bU', 'frozen');
-    add(v, 5, 'hSQxjB1Jdkw', 'finger song');
-    add(v, 5, 'u9zAJz2wyG8', 'peppa');
+    add(v, 0, 5, 'L0MK7qz13bU', 'frozen');
+    add(v, 0, 5, 'hSQxjB1Jdkw', 'finger song');
+    add(v, 0, 5, 'u9zAJz2wyG8', 'peppa');
+    add(v, 5, 5, 'XU1y7pX7dNo', 'kids-yoga');
 
     return v;
 }
 
-var VIDEOS = shuffle(populate()[5]); // only age 5
-
-var idx = 0;
 var pick = function() {
-    var obj = VIDEOS[idx++ % VIDEOS.length]
+    var obj = CURRENT[ITER++ % CURRENT.length]
     document.getElementById('current').innerHTML = JSON.stringify(obj);
     return obj.id;
 }
@@ -47,7 +51,7 @@ tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;
-function onYouTubeIframeAPIReady() {
+var onYouTubeIframeAPIReady = function() {
     player = new YT.Player('player', {
         height: window.innerHeight - 40,
         width: window.innerWidth - 20,
@@ -59,18 +63,35 @@ function onYouTubeIframeAPIReady() {
     });
 }
 
-function onPlayerReady(event) {
+var onPlayerReady = function(event) {
     event.target.playVideo();
 }
 
-function next() {
+var next = function() {
     player.loadVideoById(pick());
 }
 
-function onPlayerStateChange(event) {
+var onPlayerStateChange = function(event) {
     if (event.data == YT.PlayerState.ENDED)
         next();
 }
+
+var init = function() {
+    VIDEOS = populate();
+    CURRENT = shuffle(VIDEOS[localStorage.age || 5])
+
+    var s = '';
+    for (var k in VIDEOS) {
+        var inner = k + '[' + VIDEOS[k].length + ']';
+        if (localStorage.age == k)
+            s += inner + '&nbsp;';
+        else
+            s += '<a href="javascript: localStorage.age=' + k + '; init(); next(); ">' + inner  +'</a>&nbsp;';
+    }
+    document.getElementById('ages').innerHTML = s;
+}
+
+init();
     </script>
   </body>
 </html>
